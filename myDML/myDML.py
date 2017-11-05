@@ -2,7 +2,7 @@
 """
 Created on Sun Oct 22 24:00:00 2017
 
-@author: Zhiyu
+@author: dmyan
 """
 # import your module here
 import numpy as np
