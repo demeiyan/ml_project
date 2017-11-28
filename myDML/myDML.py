@@ -68,69 +68,20 @@ def train(traindata):
             p = p.sum(axis=0)
             p = np.exp(-p)
             p[i] = 0
-            p = p / p.sum()
+            p = p / p.sum()#pij
             index = labels == labels[i]  # 取相同标签的索引
-            all = np.dot(p * (X[i, :] - X).T,X[i, :] - X)#(p * (X[i, :] - X).T).dot((X[i, :] - X))
+            all = np.dot(p * (X[i, :] - X).T,X[i, :] - X)#公式左边求和
             p1 = p[index]  # 取相同标签的P
-            lall = np.dot(p1 * (X[i, :] - X[index]).T,X[i, :] - X[index]) #(p1 * (X[i, :] - X[index]).T).dot((X[i, :] - X[index]))
-            der = A.dot(p1.sum() * all - lall)
+            lall = np.dot(p1 * (X[i, :] - X[index]).T,X[i, :] - X[index]) #公式右边求和
+            der = A.dot(p1.sum() * all - lall)#导数
             A = A + learning_rate * der
-            #psum =p1.sum()
-            #print(psum)
-
     return 0
-
-
 def Euclidean_distance(inst_a, inst_b):
     return np.linalg.norm(inst_a - inst_b)
-
 def distance(inst_a, inst_b):
     Ax=A.dot((inst_a- inst_b).T)
     dist = (Ax*Ax).sum()
-    #dist = np.random.rand()  # 随机度量 这是一个错误示范，请删除这行 _(:3 」∠)_
     return dist
-
-
 # main program here
 if __name__ == '__main__':
-    train_file = open('dataset/Letter_Recognition/lr_train_'+'0'+'.pkl', 'rb')
-    test_file = open('dataset/Letter_Recognition/lr_test_'+'0'+'.pkl', 'rb')
-    LR_train = pkl.load(train_file) # tuple of training data
-    LR_test = pkl.load(test_file) # tuple of testing data
-    train_file.close()
-    test_file.close()
-        
-    train_X = LR_train[0] # instances of training data
-    train_Y = LR_train[1] # labels of training data
-    test_X = LR_test[0] # instances of testing data
-    test_Y = LR_test[1] # labels of testing data
-    #train(LR_train)
-    #print(A)
-    #print(Euclidean_distance(train_X[0],train_X[48]))
-    traindata = LR_train
-    max_iter = 100
-    learning_rate = 0.005
-    X = traindata[0]
-    labels = traindata[1]
-    n, d = X.shape
-    global A
-    A =  np.zeros((d, d))
-    np.fill_diagonal(A, 1)
-    psum =0.0
-    for it in range(10):
-        for i in range(n):
-            Ax = A.dot((X[i, :] - X).T)
-            p = Ax * Ax
-            p = p.sum(axis=0)
-            p = np.exp(-p)
-            p[i] = 0
-            p = p / p.sum()
-            index = labels == labels[i]  # 取相同标签的索引
-            all = np.dot(p * (X[i, :] - X).T,X[i, :] - X)#(p * (X[i, :] - X).T).dot((X[i, :] - X))
-            p1 = p[index]  # 取相同标签的P
-            lall = np.dot(p1 * (X[i, :] - X[index]).T,X[i, :] - X[index]) #(p1 * (X[i, :] - X[index]).T).dot((X[i, :] - X[index]))
-            der = A.dot(p1.sum() * all - lall)
-            A = A + learning_rate * der
-            psum =p1.sum()
-            #print(psum)
-              #print(psum)
+    pass
