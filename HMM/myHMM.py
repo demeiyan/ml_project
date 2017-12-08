@@ -44,18 +44,17 @@ class myHMM(object):
         return beta
 
     def HMMViterbi(self, a, b, o, pi):
-        # Implements HMM Viterbi algorithm        
-        
+        # Implements HMM Viterbi algorithm
         N = np.shape(b)[0]
         T = np.shape(o)[0]
     
         path = np.zeros(T)
-        delta = np.zeros((N,T))
-        phi = np.zeros((N,T))
-        s = np.array([0, 1])
+        delta = np.zeros((N, T))
+        phi = np.zeros((N, T))
         """
         TODO: implement the viterbi algorithm and return path
         """
+        s = np.array([i for i in range(N)])
         delta[:, 0] = pi * b[:, o[0]]
         phi[:, 0] = 0
         for i in xrange(1, T):
@@ -165,10 +164,10 @@ def calculateDailyMoves(hist_prices, holding_period):
 if __name__ == '__main__':
 
     hmm = myHMM()
-    hist_prices = parseStockPrices('2015-10-11', '2017-11-11', '002415')  
+    hist_prices = parseStockPrices('2015-10-11', '2017-11-11', '002415')
     hist_moves = calculateDailyMoves(hist_prices,1)
     hist_Observation = np.array(list(map(lambda x: 1 if x>0 else (0 if x<0 else 2), hist_moves)))
-    hist_Observation = hist_Observation[::-1]  
+    hist_Observation = hist_Observation[::-1]
     print(hist_Observation)
     (a, b, pi_est, alpha_est) = hmm.HMMBaumWelch(hist_Observation, 2, False, False)
     path = hmm.HMMViterbi(a, b, hist_Observation, pi_est)
