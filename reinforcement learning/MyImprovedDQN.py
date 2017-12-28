@@ -6,8 +6,9 @@ from torch.autograd import Variable
 import torch.nn.functional as func
 import numpy as np
 import gym
+import matplotlib.pyplot as plt
 from gym import wrappers
-type = 'CartPole-v0'
+type = 'MountainCar-v0'
 np.random.seed(0)
 
 
@@ -52,6 +53,8 @@ class DQN:
         self.loss_func = nn.MSELoss()
 
     def choose_action(self, obv):
+        # self.mydqn.epsilon = self.mydqn.epsilon*self.mydqn.epsilon_decay
+        # epsilon = max(self.mydqn.epsilon, 0.01)
         if np.random.random() < self.mydqn.epsilon:
             action = np.random.randint(0, self.mydqn.action_len)
         else:
@@ -85,6 +88,7 @@ class DQN:
         self.optim.zero_grad()
         loss.backward()
         self.optim.step()
+        return loss.data.numpy()
 
 
 class TrainAndTest:
@@ -95,83 +99,86 @@ class TrainAndTest:
         self.max_step = 20000
 
     def train(self):
+        x_loss = []
+        losses = []
+        x_reward = []
+        rewards = []
         for i in range(self.episodes):
             s = self.mydqn.env.reset()
             #step = 0
             #while True:
+            loss = 0
+            reward = 0
             for t in range(self.max_step):
                 a = self.dqn.choose_action(s)
-                s_, reward, done, info = self.mydqn.env.step(a)
-                r = 0
-                if type == 'CartPole-v0':
-                    x, x_, theta, theta_ = s_
-                    r1 = (self.mydqn.env.x_threshold - abs(x)) / self.mydqn.env.x_threshold - 0.8
-                    r2 = (self.mydqn.env.theta_threshold_radians - abs(theta)) / self.mydqn.env.theta_threshold_radians - 0.5
-                    r = r1 + r2
-                    if x > 4 or x < -4:
-                        r = r - 0.05
-                elif type == 'MountainCar-v0':
-                    position, velocity = s_
-                    r = np.abs(position-(-0.07))
-                    # if position > 0 and velocity > 0:
-                    #     r += 2
-                    # elif position < 0 and velocity < 0:
-                    #     r += 2
-                    # else:
-                    #     r = -1
+                s_, r, done, info = self.mydqn.env.step(a)
+
+                # if type == 'CartPole-v0':
+                #     x, x_, theta, theta_ = s_
+                #     r1 = (self.mydqn.env.x_threshold - abs(x)) / self.mydqn.env.x_threshold - 0.8
+                #     r2 = (self.mydqn.env.theta_threshold_radians - abs(theta)) / self.mydqn.env.theta_threshold_radians - 0.5
+                #     r = r1 + r2
+                #     if x > 4 or x < -4:
+                #         r = r - 0.05
+                # elif type == 'MountainCar-v0':
+                position, velocity = s_
+                r = np.abs(position-(-0.5))
+                reward += r
                 self.dqn.store_transition(s, a, r, s_)
 
                 if self.dqn.memory_count > self.mydqn.memory_capacity:
-                    self.dqn.learn()  # 记忆库满了就进行学习
+                    loss += self.dqn.learn()  # 记忆库满了就进行学习
                 #step += 1
                 if done:  # 如果回合结束, 进入下回合
-                    #print("Episode %d finished after %f time steps " % (i, step))
                     break
                 s = s_
+            if loss > 0:
+                losses.append(loss)
+                x_loss.append(len(x_loss))
+            if reward > 0:
+                rewards.append(reward)
+                x_reward.append(len(x_reward))
+
+        plt.figure()
+        plt.plot(x_loss, losses)
+        plt.xlabel('Training episodes')
+        plt.ylabel('Loss average')
+        plt.savefig('./MyImprovedDQN/loss.png')
+        plt.figure()
+        plt.plot(x_reward, rewards)
+        plt.xlabel('Training episodes')
+        plt.ylabel('The sum of reawrd')
+        plt.savefig('./MyImprovedDQN/reward.png')
 
     def test(self):
         print('----------------train---------------------')
         self.train()
         env = self.mydqn.env
-        env = wrappers.Monitor(env, '/home/dmyan/codes/github/repositories/ml_project/reinforcement learning/cartpole-vo', force=True)
+        #env = wrappers.Monitor(env, './MyImprovedDQN/cartpole-vo', force=True)
         rewards = []
-        std_reward = 0
         print('----------------test----------------------')
         for i in range(100):
             obv = env.reset()
             r = 0
+            done = False
+            step = 0
             for t in range(self.max_step):
                 #env.render()
                 action = self.dqn.t_net.forward(Variable(torch.FloatTensor(obv))).data.numpy()
                 action = np.argmax(action)
                 obv, reward, done, info = env.step(action)
                 r += reward
+                step += 1
                 if done:
                     print("Episode %d finished after %f time steps " % (i, t))
                     break
-                elif t == self.max_step - 1:
-                    print("Episode %d finished after %f time steps " % (i, t))
+
+            if not done:
+                print("Episode %d finished after %f time steps " % (i, step))
             rewards.append(r)
-        avg_reward = sum(rewards) / len(rewards)  # 均值
-        for i in range(len(rewards)):
-            std_reward += np.square(rewards[i] - avg_reward)
-        std_reward = np.sqrt(std_reward / len(rewards))  # 标准差
-        print("average_reward: %.2f,std_reward: %.2f" % (avg_reward, std_reward))
-
-
-class Test:
-    def __init__(self):
-        self.env = gym.make(type)
-        self.env = self.env.unwrapped
-        self.env = wrappers.Monitor(self.env, '/home/dmyan/codes/github/repositories/ml_project/reinforcement learning/DQN/cartpole-vo', force=True)
-
-    def test(self):
-        obv = self.env.reset()
-        while True:
-            action = self.env.action_space.sample()
-            observation, reward, done, info = self.env.step(action)
-            if done:
-                break
+        avg_reward = np.mean(rewards)  # 均值
+        std_reward = np.std(rewards)
+        print("average_reward: {},std_reward: {}".format(avg_reward, std_reward))
 
 
 if __name__ == '__main__':
@@ -179,5 +186,3 @@ if __name__ == '__main__':
     # test.test()
     test = TrainAndTest()
     test.test()
-
-
