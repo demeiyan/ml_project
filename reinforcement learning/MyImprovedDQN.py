@@ -137,12 +137,12 @@ class TrainAndTest:
                 s_, r, done, info = self.mydqn.env.step(a)
 
                 # CartPole-v0 reward
-                x, x_, theta, theta_ = s_
-                r1 = (self.mydqn.env.x_threshold - abs(x)) / self.mydqn.env.x_threshold - 0.8
-                r2 = (self.mydqn.env.theta_threshold_radians - abs(theta)) / self.mydqn.env.theta_threshold_radians - 0.5
-                r = r1 + r2
-                if x > 4 or x < -4:
-                    r = r - 0.05
+                # x, x_, theta, theta_ = s_
+                # r1 = (self.mydqn.env.x_threshold - abs(x)) / self.mydqn.env.x_threshold - 0.8
+                # r2 = (self.mydqn.env.theta_threshold_radians - abs(theta)) / self.mydqn.env.theta_threshold_radians - 0.5
+                # r = r1 + r2
+                # if x > 4 or x < -4:
+                #     r = r - 0.05
 
                 # MountainCar-v0 reward
                 # position, velocity = s_
@@ -158,13 +158,32 @@ class TrainAndTest:
                 #         r += 10000
                 #     r += 500
 
+                if type == 'CartPole-v0':  # CartPole-v0 reward
+                    self.max_step = 20000
+                    x, x_, theta, theta_ = s_
+                    r1 = (self.mydqn.env.x_threshold - abs(x)) / self.mydqn.env.x_threshold - 0.8
+                    r2 = (self.mydqn.env.theta_threshold_radians - abs(theta)) / self.mydqn.env.theta_threshold_radians - 0.5
+                    r = r1 + r2
+                    if x > 4 or x < -4:
+                        r = r - 0.05
+                elif type == 'MountainCar-v0 ':    # MountainCar-v0 reward
+                    position, velocity = s_
+                    r = np.abs(position-(-0.5))
+                elif type == 'Acrobot-v1':                 # Acrobot-v1 reward
+                    x1, _, x2, _, _, _ = s_
+                    r = 1 - x1 + x2
+                    if done and t <500 :
+                        if t < 200:
+                            r += 1000
+                        r += 500
+
                 self.dqn.store_transition(s, a, r, s_)
                 reward += r
                 if self.dqn.memory_count > self.mydqn.memory_capacity:
                     loss.append(self.dqn.learn())  # 记忆库满了就进行学习
                 #step += 1
                 if done:  # 如果回合结束, 进入下回合
-                    print(t)
+                    print("Episode %d finished after %f time steps" % (i, t))
                     break
                 s = s_
             rewards.append(reward)

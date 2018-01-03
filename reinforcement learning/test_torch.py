@@ -76,9 +76,8 @@ class DQN:
         self.loss_func = nn.MSELoss()
 
     def choose_action(self, obv, t):
-        #self.mydqn.epsilon = max(self.mydqn.epsilon_min, np.power(self.mydqn.epsilon_decay, t)*self.mydqn.epsilon)
         self.mydqn.epsilon = self.mydqn.epsilon*np.power(self.mydqn.epsilon_decay, t)
-        epsilon = max(0.0005, self.mydqn.epsilon)
+        epsilon = max(0.01, self.mydqn.epsilon)
         if np.random.random() < epsilon:
             action = np.random.randint(0, self.mydqn.action_len)
         else:
@@ -145,14 +144,15 @@ class TrainAndTest:
                 a = self.dqn.choose_action(s, i)
                 s_, r, done, info = self.mydqn.env.step(a)
 
-                x1, _, x2, _, _, _ = s_
-                r = 1 - x1 + x2
-                if done and t <500 :
-                    if t < 200:
-                        r += 1000
-                    if t < 100 :
-                        r += 10000
-                    r += 500
+                # Acrobot-v1 reward
+                # x1, _, x2, _, _, _ = s_
+                # r = 1 - x1 + x2
+                # if done and t < 500 :
+                #     if t < 200:
+                #         r += 1000
+                #     if t < 100 :
+                #         r += 10000
+                #     r += 500
 
                 # r = -np.cos(s_[0]) - np.cos(s_[0] + s_[1])
                 # s_ = self.state(s_)
@@ -205,7 +205,7 @@ class TrainAndTest:
             done = False
             step = 0
             #obv = self.state(obv)
-            for t in range(1000):
+            for t in range(self.max_step):
                 #env.render()
                 action = self.dqn.q_net.forward(Variable(torch.FloatTensor(obv))).data.numpy()
                 action = np.argmax(action)

@@ -8,6 +8,7 @@ import gym
 import math
 import numpy as np
 import random
+import sys
 from gym import wrappers
 
 # cartpole-v0
@@ -22,6 +23,7 @@ from gym import wrappers
 # self.gamma = 0.9
 # self.episodes = 2000
 # self.epsilon_decay = 0.9
+
 
 class QLearning:
     def __init__(self, name):
@@ -55,7 +57,6 @@ class QLearning:
             self.state_scopes = list(zip(self.env.observation_space.low, self.env.observation_space.high))
             self.max_steps = 2000
         self.q_table = np.zeros(self.state_len + (self.action_len,))
-
 
         # CartPole-V0 parameters
         self.epsilon = 0.1
@@ -139,7 +140,6 @@ class QLearning:
             if x > 4 or x < -4:
                 r = r - 0.05
             return r
-            #return reward
         elif self.type == 'MountainCar-v0':
             return reward
         else:
@@ -159,28 +159,26 @@ class QLearning:
                 action = self.choose_action(s, episode)
                 obv, reward, done, info = self.env.step(action)
                 s_ = self.discrete(obv)
-
-                # CartPole-v0 reward
-                x, x_, theta, theta_ = obv
-                r1 = (self.env.x_threshold - abs(x)) / self.env.x_threshold - 0.8
-                r2 = (self.env.theta_threshold_radians - abs(theta)) / self.env.theta_threshold_radians - 0.5
-                r = r1 + r2
-                if x > 4 or x < -4:
-                    r = r - 0.05
-                reward = r
-
-                # MountainCar-v0 reward
-                # position, velocity = s_
-                # r = np.abs(position-(-0.5))
-
-                # Acrobot-v1 reward
-                # x1, _, x2, _, _, _ = s_
-                # r = 1 - x1 + x2
-                # if done and t <500 :
-                #     if t < 200:
-                #         r += 1000
-                #     r += 500
-                # reward = r
+                if self.type == 'CartPole-v0':  # CartPole-v0 reward
+                    pass
+                    # x, x_, theta, theta_ = obv
+                    # r1 = (self.env.x_threshold - abs(x)) / self.env.x_threshold - 0.8
+                    # r2 = (self.env.theta_threshold_radians - abs(theta)) / self.env.theta_threshold_radians - 0.5
+                    # r = r1 + r2
+                    # if x > 4 or x < -4:
+                    #     r = r - 0.05
+                    # reward = r
+                elif self.type == 'MountainCar-v0 ':    # MountainCar-v0 reward
+                    position, velocity = s_
+                    reward = np.abs(position-(-0.5))
+                elif self.type == 'Acrobot-v1':                 # Acrobot-v1 reward
+                    x1, _, x2, _, _, _ = s_
+                    r = 1 - x1 + x2
+                    if done and t <500 :
+                        if t < 200:
+                            r += 1000
+                        r += 500
+                    reward = r
                 qmax = np.max(self.q_table[s_])
                 self.q_table[s + (action,)] += learning_rate * (reward + self.gamma * qmax - self.q_table[s + (action,)])
                 s = s_
@@ -197,7 +195,6 @@ class QLearning:
         :return:
         """
         rewards = []
-        std_reward = 0
         print('----- run -----')
         #self.env = wrappers.Monitor(self.env, './MyQLearning/'+self.type, force=True)
         for episode in range(100):
@@ -207,21 +204,17 @@ class QLearning:
             done = False
             step = 0
             for t in range(self.max_steps):
-            # while True:
                 action = np.argmax(self.q_table[s])
                 obv, reward, done, info = self.env.step(action)
                 s_ = self.discrete(obv)
                 s = s_
                 r += reward
                 step += 1
-                if done :
-                    #print("Episode %d finished after %f time steps " % (episode, t))
+                if done:
                     break
-
             print("Episode %d finished after %f time steps " % (episode, step))
             rewards.append(r)
-
-        avg_reward = np.mean(rewards)   #sum(rewards) / len(rewards)  # 均值
+        avg_reward = np.mean(rewards)
         std_reward = np.std(rewards)
         print("average_reward: {},std_reward: {}".format(avg_reward, std_reward))
 
