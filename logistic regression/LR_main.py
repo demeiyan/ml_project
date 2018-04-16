@@ -41,13 +41,21 @@ def smote(x, y, cls, k):
         np.random.shuffle(negative_indices)
         print(negative_indices.shape[0])
         distance_vector = np.zeros(negative_indices.shape[0])
+        negative_sample = np.zeros((negative_indices.shape[0]*sampling_rate, 11))
+        negative_count = 0
         for i in range(negative_indices.shape[0]):
             for j in range(negative_indices.shape[0]):
                 distance_vector[j] = np.linalg.norm(x[negative_indices[i]]-x[negative_indices[j]])
-            sampling_nn = distance_vector.argsort()[0:k]
-            sampling_nn = np.random.choice(sampling_nn, sampling_rate, replace=False)
-            print(sampling_nn)
-
+            sampling_knn = distance_vector.argsort()[0:k]
+            sampling_nn = np.random.choice(sampling_knn, sampling_rate, replace=False)
+            for j in range(sampling_nn.shape[0]):
+                for k in range(x.shape[1]):
+                    negative_sample[negative_count][k] = x[i][k] + np.random.rand()*(x[negative_indices[j]][k] - x[i][k])
+            negative_count += 1
+        print(negative_sample[1000:3000])
+        synthetic_feature = np.concatenate((positive_sample, negative_sample), axis=0)
+        synthetic_label = np.concatenate((label_sample, np.zeros(negative_sample.shape[0])), axis=0)
+        return synthetic_feature, synthetic_label
     else:
         negative_sample = np.zeros(0)
         label_sample = np.ones(positive_sample.shape[0])
@@ -62,7 +70,6 @@ def smote(x, y, cls, k):
         synthetic_label = np.concatenate((label_sample, np.zeros(negative_sample.shape[0])), axis=0)
         # print(synthetic_feature, synthetic_label)
         return synthetic_feature, synthetic_label
-
     # return synthetic_feature, synthetic_label
 
 
