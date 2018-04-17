@@ -31,7 +31,7 @@ def smote(x, y, cls, k):
     label_sample = np.array([int(i == cls) for i in y])
     n_samples = label_sample.sum()
     remian = all_samples - n_samples
-    print(n_samples, remian, sum(label_counts))
+    # print(n_samples, remian, sum(label_counts))
     positive_sample = x[np.where(label_sample == 1)[0]]
     # print(positive_sample.shape)
 
@@ -39,7 +39,7 @@ def smote(x, y, cls, k):
         sampling_rate = int(n_samples/remian) + 1
         negative_indices = np.where(label_sample == 0)[0]
         np.random.shuffle(negative_indices)
-        print(negative_indices.shape[0])
+        # print(negative_indices.shape[0])
         distance_vector = np.zeros(negative_indices.shape[0])
         negative_sample = np.zeros((negative_indices.shape[0]*sampling_rate, 11))
         negative_count = 0
@@ -51,8 +51,8 @@ def smote(x, y, cls, k):
             for j in range(sampling_nn.shape[0]):
                 for k in range(x.shape[1]):
                     negative_sample[negative_count][k] = x[i][k] + np.random.rand()*(x[negative_indices[j]][k] - x[i][k])
-            negative_count += 1
-        print(negative_sample[1000:3000])
+                negative_count += 1
+        # print(negative_sample[1000:3000])
         synthetic_feature = np.concatenate((positive_sample, negative_sample), axis=0)
         synthetic_label = np.concatenate((label_sample, np.zeros(negative_sample.shape[0])), axis=0)
         return synthetic_feature, synthetic_label
@@ -120,7 +120,6 @@ if __name__ == '__main__':
     x_test = np.concatenate((x_test, np.ones((1, x_test.shape[0])).T), axis=1)
     label_train = np.array([int(x) for x in label_train])
     label_test = np.array([int(x) for x in label_test])
-    smote(x_train, label_train, 1, 20)
     # split data to train_data and valid_data
     x_train, label_train, x_valid, label_valid = train_valid_split(x_train, label_train, 0.1)
     datasize = label_train.shape[0]
@@ -132,40 +131,57 @@ if __name__ == '__main__':
     #     for i in range(int(datasize/min_batch)):
     #         belta[0] = binaryclassification(x_train[i*min_batch:(i+1)*min_batch], label_train[i*min_batch:(i+1)*min_batch], 5, belta[0], learn_rate)
 
+    for i in range(5):
+        # x_train, label_train =
+        # x, y = smote(x_train, label_train, i+1, 15)
+        # print(x,y)
+        for epoch in range(1000):
+            for j in range(int(datasize/min_batch)):
+                belta[i] = binary_classification(x_train[j*min_batch:(j+1)*min_batch], label_train[j*min_batch:(j+1)*min_batch], i+1, belta[i], learn_rate)
 
+        result = np.where(sigmoid(belta[i], x_train.T) >= 0.5)[0]
+        label = np.where(label_train == (i+1))[0]
+        count = 0
+        for index in result:
+            if index in label:
+                count += 1
+        loss = label.shape[0] - count
+        print(str(i)+' loss :'+str(loss/label.shape[0]))
+        # loss = (result != label_train).sum()/label_train.shape[0]*100
 
+    # 统计各类样本数目
+    # label_counts = []
     # for i in range(5):
-    #     # x_train, label_train =
-    #     # smote(x_train, label_train, i+1)
-    #     for epoch in range(1000):
-    #         for j in range(int(datasize/min_batch)):
-    #             belta[i] = binary_classification(x_train[j*min_batch:(j+1)*min_batch], label_train[j*min_batch:(j+1)*min_batch], i+1, belta[i], learn_rate)
-    #         result = np.argmax(sigmoid(belta, x_train.T), axis=0) + 1
-    #         loss = (result != label_train).sum()/label_train.shape[0]*100
-    #         accuracy = sigmoid(belta, x_valid.T)
-    #         accuracy = np.argmax(accuracy, axis=0) + 1
-    #         # print('epoch %d loss : %.2f%% precision : %.2f%%' % (epoch, loss, (accuracy == label_valid).sum()/label_test.shape[0]*100))
-    # # test
-    # label_predict = np.argmax(sigmoid(belta, x_test.T), axis=0) + 1
-    # precision = []
-    # recall = []
-    # print('\t\tpredict\ttest\tcorrect')
-    # for i in range(5):
-    #     predict = label_predict == (i+1)
-    #     test = label_test == (i+1)
-    #     predict_indices = [j for j, x in enumerate(label_predict) if x == (i+1)]
-    #     test_indices = [j for j, x in enumerate(label_test) if x == (i+1)]
-    #     correct = 0
-    #     for index in predict_indices:
-    #         if index in test_indices:
-    #             correct += 1
-    #     print(str(i+1)+' sample ' + str(predict.sum())+'\t'+str(test.sum())+'\t'+str(correct))
-    #     if predict.sum() != 0:
-    #         precision.append(correct/predict.sum()*100)
-    #     else:
-    #         precision.append(0.0)
-    #     recall.append(correct/test.sum()*100)
-    # accuracy = (label_predict == label_test).sum()/label_test.shape[0]*100
-    # print('precision\t: %.2f%% %.2f%% %.2f%% %.2f%% %.2f%%' % (precision[0], precision[1], precision[2], precision[3], precision[4]))
-    # print('recall\t: %.2f%% %.2f%% %.2f%% %.2f%% %.2f%%' % (recall[0], recall[1], recall[2], recall[3], recall[4]))
-    # print('test result : %.2f%%' % accuracy)
+    #     label_counts.append((label_train == (i+1)).sum())
+    #
+    # print(sum(label_counts), label_counts)
+    accuracy = sigmoid(belta, x_valid.T)
+    # # 阈值飘移,再缩放(rescaling)
+    # for i in range(accuracy.shape[0]):
+    #     accuracy[i] = accuracy[i] * ((sum(label_counts) - label_counts[i])/label_counts[i])
+    accuracy = np.argmax(accuracy, axis=0) + 1
+    print('precision : %.2f%%' % ((accuracy == label_valid).sum()/label_test.shape[0]*100))
+    # test
+    label_predict = np.argmax(sigmoid(belta, x_test.T), axis=0) + 1
+    precision = []
+    recall = []
+    print('\t\tpredict\ttest\tcorrect')
+    for i in range(5):
+        predict = label_predict == (i+1)
+        test = label_test == (i+1)
+        predict_indices = [j for j, x in enumerate(label_predict) if x == (i+1)]
+        test_indices = [j for j, x in enumerate(label_test) if x == (i+1)]
+        correct = 0
+        for index in predict_indices:
+            if index in test_indices:
+                correct += 1
+        print(str(i+1)+' sample ' + str(predict.sum())+'\t'+str(test.sum())+'\t'+str(correct))
+        if predict.sum() != 0:
+            precision.append(correct/predict.sum()*100)
+        else:
+            precision.append(0.0)
+        recall.append(correct/test.sum()*100)
+    accuracy = (label_predict == label_test).sum()/label_test.shape[0]*100
+    print('precision\t: %.2f%% %.2f%% %.2f%% %.2f%% %.2f%%' % (precision[0], precision[1], precision[2], precision[3], precision[4]))
+    print('recall\t: %.2f%% %.2f%% %.2f%% %.2f%% %.2f%%' % (recall[0], recall[1], recall[2], recall[3], recall[4]))
+    print('test result : %.2f%%' % accuracy)
