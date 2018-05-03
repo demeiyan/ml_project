@@ -24,10 +24,17 @@ import matplotlib.pyplot as plt
 # self.gamma = 0.9
 
 
+# self.batch_size = 64
+# self.learning_rate = 0.0035
+# self.epsilon = 0.1
+# self.epsilon_min = 0.01
+# self.epsilon_decay = 0.995
+# self.gamma = 0.9
+
 class MyDQN:
     def __init__(self):
-        self.batch_size = 32
-        self.learning_rate = 0.0025
+        self.batch_size = 64
+        self.learning_rate = 0.0035
         self.epsilon = 0.1
         self.epsilon_min = 0.01
         self.epsilon_decay = 0.995
@@ -44,11 +51,11 @@ class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
         mydqn = MyDQN()
-        self.input = nn.Linear(mydqn.state_len, 40)
+        self.input = nn.Linear(mydqn.state_len, 128)
         self.input.weight.data.normal_(0, 0.1)
-        self.middle = nn.Linear(40, 40)
+        self.middle = nn.Linear(128, 128)
         self.middle.weight.data.normal_(0, 0.1)
-        self.out = nn.Linear(40, mydqn.action_len)
+        self.out = nn.Linear(128, mydqn.action_len)
         self.out.weight.data.normal_(0, 0.1)
 
     def forward(self, x):
@@ -124,6 +131,7 @@ class TrainAndTest:
             s = self.mydqn.env.reset()
             reward = 0
             loss = []
+
             for t in range(self.max_step):
                 a = self.dqn.choose_action(s, i)
                 s_, r, done, info = self.mydqn.env.step(a)
@@ -151,13 +159,16 @@ class TrainAndTest:
                 #     r += 2
                 # else:
                 #     r = -2
+
+
+                reward += r
                 self.dqn.store_transition(s, a, r, s_)
                 reward += r
                 if self.dqn.memory_count > self.mydqn.memory_capacity:
                     loss.append(self.dqn.learn())  # 记忆库满了就进行学习
                 #step += 1
                 if done:  # 如果回合结束, 进入下回合
-
+                    #print(t)
                     # rewards.append(reward)
                     # x_reward.append(len(x_reward))
                     # if len(loss) >0 :
@@ -169,25 +180,28 @@ class TrainAndTest:
 
             rewards.append(reward)
             x_reward.append(len(x_reward))
-            if len(loss) > 0:
+            if len(loss) == 0:
+                losses.append(sum(loss))
+                x_loss.append(len(x_loss))
+            else:
                 losses.append(sum(loss)/len(loss))
                 x_loss.append(len(x_loss))
         plt.figure()
         plt.plot(x_loss, losses)
         plt.xlabel('Training episodes')
         plt.ylabel('Loss average')
-        plt.savefig('./MyDQN/loss.png')
+        plt.savefig('./MyDQN/1_1_loss.png')
         plt.figure()
         plt.plot(x_reward, rewards)
         plt.xlabel('Training episodes')
         plt.ylabel('The sum of reawrd')
-        plt.savefig('./MyDQN/reward.png')
+        plt.savefig('./MyDQN/1_1_reward.png')
 
     def test(self):
         print('----------------train---------------------')
         self.train()
         env = self.mydqn.env
-        env = wrappers.Monitor(env, './MyDQN/cartpole-vo', force=True)
+        #env = wrappers.Monitor(env, './MyDQN/cartpole-vo', force=True)
         rewards = []
         print('----------------test----------------------')
         for i in range(100):

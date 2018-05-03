@@ -8,6 +8,7 @@ import gym
 import math
 import numpy as np
 import random
+from gym import wrappers
 
 
 class QLearning:
@@ -21,7 +22,7 @@ class QLearning:
         if name == 'CartPole-v0':
             self.env = gym.make('CartPole-v0')
             self.env = self.env.unwrapped
-            self.state_len = (10, 1, 6, 12)
+            self.state_len = (2, 2, 6, 3)
             self.action_len = self.env.action_space.n
             self.state_scopes = list(zip(self.env.observation_space.low, self.env.observation_space.high))
             self.state_scopes[1] = [-0.5, 0.5]
@@ -37,16 +38,21 @@ class QLearning:
         else:
             self.env = gym.make('Acrobot-v1')
             self.env = self.env.unwrapped
+            self.state_len = (10, 10, 10, 10, 5, 5)
+            self.action_len = self.env.action_space.n
+            self.state_scopes = list(zip(self.env.observation_space.low, self.env.observation_space.high))
+            self.max_steps = 200
         self.q_table = np.zeros(self.state_len + (self.action_len,))
+
         self.epsilon = 0.1
-        self.alpha = 0.1
+        self.alpha = 0.015
         self.gamma = 0.95
         self.episodes = 2000
+
         # self.epsilon = 0.025
         # self.alpha = 0.05
         # self.gamma = 0.95
         # self.episodes = 2000
-
 
     def discrete(self, obv):
         """
@@ -73,7 +79,8 @@ class QLearning:
         :param t:
         :return:
         """
-        epsilon = max(self.epsilon, min(1, 1.0 - math.log10((t + 1) / 25)))
+        epsilon = max(self.epsilon, min(1, 1.0 - math.log10((t + 1) / 30)))
+        #print(epsilon)
         if random.random() < epsilon:
             action =self.env.action_space.sample()
         else:
@@ -97,11 +104,12 @@ class QLearning:
         """
         if self.type == 'CartPole-v0':
             x, x_, theta, theta_ = obv
-            if x < -2 or x > 2:
-                return -10
             r1 = (self.env.x_threshold - abs(x)) / self.env.x_threshold - 0.8
             r2 = (self.env.theta_threshold_radians - abs(theta)) / self.env.theta_threshold_radians - 0.5
-            return r1+r2
+            r = r1 + r2
+            if x > 4 or x < -4:
+                r = r - 0.05
+            return r
             #return reward
         elif self.type == 'MountainCar-v0':
             # position, velocity = obv
@@ -115,7 +123,7 @@ class QLearning:
             #     return -1
             return reward
         else:
-            pass
+            return reward
 
     def q_learining(self):
         """
@@ -128,10 +136,16 @@ class QLearning:
             obv = self.env.reset()
             s = self.discrete(obv)
             for t in range(self.max_steps):
-                #self.env.render()
                 action = self.choose_action(s, episode)
                 obv, reward, done, info = self.env.step(action)
                 s_ = self.discrete(obv)
+                x, x_, theta, theta_ = obv
+                r1 = (self.env.x_threshold - abs(x)) / self.env.x_threshold - 0.8
+                r2 = (self.env.theta_threshold_radians - abs(theta)) / self.env.theta_threshold_radians - 0.5
+                r = r1 + r2
+                if x > 4 or x < -4:
+                    r = r - 0.05
+                reward = r
                 #reward = self.get_reward(obv, reward)
                 qmax = np.max(self.q_table[s_])
                 self.q_table[s + (action,)] += learning_rate * (reward + self.gamma * qmax - self.q_table[s + (action,)])
@@ -147,13 +161,16 @@ class QLearning:
         :return:
         """
         rewards = []
-        std_reward = 0
         print('----- run -----')
+        #self.env = wrappers.Monitor(self.env, './MyQLearning/'+self.type, force=True)
         for episode in range(100):
             obv = self.env.reset()
             s = self.discrete(obv)
             r = 0
+            step = 0
+            done = False
             for t in range(self.max_steps):
+            #while True:
                 #self.env.render()
                 #self.env.monitor()
                 action = np.argmax(self.q_table[s])
@@ -161,16 +178,19 @@ class QLearning:
                 s_ = self.discrete(obv)
                 s = s_
                 r += reward
+                step += 0
                 if done :
                     print("Episode %d finished after %f time steps " % (episode, t))
+                    #print("finished after %f time steps " % (t))
                     break
 
+            if not done:
+                print("Episode %d finished after %f time steps " % (episode, step))
             rewards.append(r)
-        avg_reward = sum(rewards) / len(rewards)  # 均值
-        for i in range(len(rewards)):
-            std_reward += np.square(rewards[i] - avg_reward)
-        std_reward = np.sqrt(std_reward / len(rewards))  # 标准差
-        print("average_reward: %.2f,std_reward: %.2f" % (avg_reward, std_reward))
+
+        avg_reward = np.mean(rewards)   #sum(rewards) / len(rewards)  # 均值
+        std_reward = np.std(rewards)
+        print("average_reward: {},std_reward: {}".format(avg_reward, std_reward))
 
 
 if __name__ =='__main__':

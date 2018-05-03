@@ -185,12 +185,12 @@ class TrainAndTest:
         plt.plot(x_loss, losses)
         plt.xlabel('Training episodes')
         plt.ylabel('Loss average')
-        plt.savefig('./MyDQN/3/loss.png')
+        plt.savefig('./MyDQN/3/1_1_loss.png')
         plt.figure()
         plt.plot(x_reward, rewards)
         plt.xlabel('Training episodes')
         plt.ylabel('The sum of reawrd')
-        plt.savefig('./MyDQN/3/reward.png')
+        plt.savefig('./MyDQN/3/1_1_reward.png')
 
     def test(self):
         print('----------------train---------------------')

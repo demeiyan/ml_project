@@ -6,24 +6,16 @@ from torch.autograd import Variable
 import torch.nn.functional as func
 import numpy as np
 import gym
-import matplotlib.pyplot as plt
 from gym import wrappers
-type = 'MountainCar-v0'
+type = 'CartPole-v0'
 np.random.seed(0)
-# MountainCar-v0
-# self.batch_size = 32
-# self.learning_rate = 0.01
-# self.epsilon = 0.1
-# self.gamma = 0.9
-
 
 
 class MyDQN:
     def __init__(self):
-        self.batch_size = 128
-        self.learning_rate = 0.001
+        self.batch_size = 32
+        self.learning_rate = 0.01
         self.epsilon = 0.1
-        self.epsilon_decay = 0.995
         self.gamma = 0.9
         self.target_replace_iter = 100
         self.memory_capacity = 2000
@@ -37,20 +29,17 @@ class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
         mydqn = MyDQN()
-        self.input = nn.Linear(mydqn.state_len, 128)
+        self.input = nn.Linear(mydqn.state_len, 10)
         self.input.weight.data.normal_(0, 0.1)
-        self.middle = nn.Linear(128, 128)
-        self.middle.weight.data.normal_(0, 0.1)
-        self.out = nn.Linear(128, mydqn.action_len)
+        self.out = nn.Linear(10, mydqn.action_len)
         self.out.weight.data.normal_(0, 0.1)
 
     def forward(self, x):
         x = self.input(x)
         x = func.relu(x)
-        x = self.middle(x)
-        x = func.relu(x)
         action_value = self.out(x)
         return action_value
+
 
 class DQN:
     def __init__(self):
@@ -62,12 +51,8 @@ class DQN:
         self.optim = torch.optim.Adam(self.e_net.parameters(), lr=self.mydqn.learning_rate)
         self.loss_func = nn.MSELoss()
 
-    def choose_action(self, obv, t):
-        # self.mydqn.epsilon = self.mydqn.epsilon*self.mydqn.epsilon_decay
-        # epsilon = max(self.mydqn.epsilon, 0.01)
-        self.mydqn.epsilon = self.mydqn.epsilon * np.power(self.mydqn.epsilon_decay, t)
-        epsilon = max(0.01, self.mydqn.epsilon)
-        if np.random.random() < epsilon:
+    def choose_action(self, obv):
+        if np.random.random() < self.mydqn.epsilon:
             action = np.random.randint(0, self.mydqn.action_len)
         else:
             x = Variable(torch.unsqueeze(torch.FloatTensor(obv), 0))
@@ -100,109 +85,78 @@ class DQN:
         self.optim.zero_grad()
         loss.backward()
         self.optim.step()
-        return loss.data.numpy()
 
 
 class TrainAndTest:
     def __init__(self):
         self.dqn = DQN()
         self.mydqn = MyDQN()
-        self.episodes = 500
-        self.max_step = 1000
+        self.episodes = 400
+        self.max_step = 20000
 
     def train(self):
-        x_loss = []
-        losses = []
-        x_reward = []
-        rewards = []
         for i in range(self.episodes):
             s = self.mydqn.env.reset()
             #step = 0
             #while True:
-            loss = 0
-            reward = 0
             for t in range(self.max_step):
-                a = self.dqn.choose_action(s, t)
-                s_, r, done, info = self.mydqn.env.step(a)
-
-                # CartPole-v0:
-                # x, x_, theta, theta_ = s_
-                # r1 = (self.mydqn.env.x_threshold - abs(x)) / self.mydqn.env.x_threshold - 0.8
-                # r2 = (self.mydqn.env.theta_threshold_radians - abs(theta)) / self.mydqn.env.theta_threshold_radians - 0.5
-                # r = r1 + r2
-                # if x > 4 or x < -4:
-                #     r = r - 0.05
-                # type == 'MountainCar-v0':
-                position, velocity = s_
-                r = np.abs(position-(-0.5))
-                if position > 0 and velocity > 0:
-                    r += 10
-                elif position < 0 and velocity < 0:
-                    r += 10
-                # if done and t < 150:
-                #     if t < 120:
-                #         r += 1000
-                #     r += 100
-                if t < 100:
-                    r += 100
-                if t > 200:
-                    r += -100
-                #print(r)
-                reward += r
+                a = self.dqn.choose_action(s)
+                s_, reward, done, info = self.mydqn.env.step(a)
+                r = 0
+                if type == 'CartPole-v0':
+                    x, x_, theta, theta_ = s_
+                    r1 = (self.mydqn.env.x_threshold - abs(x)) / self.mydqn.env.x_threshold - 0.8
+                    r2 = (self.mydqn.env.theta_threshold_radians - abs(theta)) / self.mydqn.env.theta_threshold_radians - 0.5
+                    r = r1 + r2
+                    if x > 4 or x < -4:
+                        r = r - 0.05
+                elif type == 'MountainCar-v0':
+                    position, velocity = s_
+                    r = np.abs(position-(-0.07))
+                    # if position > 0 and velocity > 0:
+                    #     r += 2
+                    # elif position < 0 and velocity < 0:
+                    #     r += 2
+                    # else:
+                    #     r = -1
                 self.dqn.store_transition(s, a, r, s_)
 
                 if self.dqn.memory_count > self.mydqn.memory_capacity:
-                    loss += self.dqn.learn()  # 记忆库满了就进行学习
+                    self.dqn.learn()  # 记忆库满了就进行学习
                 #step += 1
                 if done:  # 如果回合结束, 进入下回合
-                    print(t)
+                    #print("Episode %d finished after %f time steps " % (i, step))
                     break
                 s = s_
-            if loss > 0:
-                losses.append(loss)
-                x_loss.append(len(x_loss))
-            if reward > 0:
-                rewards.append(reward)
-                x_reward.append(len(x_reward))
-
-        plt.figure()
-        plt.plot(x_loss, losses)
-        plt.xlabel('Training episodes')
-        plt.ylabel('Loss average')
-        plt.savefig('./MyImprovedDQN/1_1_loss.png')
-        plt.figure()
-        plt.plot(x_reward, rewards)
-        plt.xlabel('Training episodes')
-        plt.ylabel('The sum of reawrd')
-        plt.savefig('./MyImprovedDQN/1_1_reward.png')
 
     def test(self):
         print('----------------train---------------------')
         self.train()
         env = self.mydqn.env
-        #env = wrappers.Monitor(env, './MyImprovedDQN/cartpole-vo', force=True)
+        #env = wrappers.Monitor(env, '/home/dmyan/codes/github/repositories/ml_project/reinforcement learning/cartpole-vo', force=True)
         rewards = []
+        std_reward = 0
         print('----------------test----------------------')
         for i in range(100):
             obv = env.reset()
             r = 0
-            done = False
-            step = 0
-            for t in range(2000):
-                env.render()
+            for t in range(self.max_step):
+                #env.render()
                 action = self.dqn.t_net.forward(Variable(torch.FloatTensor(obv))).data.numpy()
                 action = np.argmax(action)
                 obv, reward, done, info = env.step(action)
                 r += reward
-                step += 1
                 if done:
+                    print("Episode %d finished after %f time steps " % (i, t))
                     break
-
-            print("Episode %d finished after %f time steps " % (i, step))
+                elif t == self.max_step - 1:
+                    print("Episode %d finished after %f time steps " % (i, t))
             rewards.append(r)
-        avg_reward = np.mean(rewards)  # 均值
-        std_reward = np.std(rewards)
-        print("average_reward: {},std_reward: {}".format(avg_reward, std_reward))
+        avg_reward = sum(rewards) / len(rewards)  # 均值
+        for i in range(len(rewards)):
+            std_reward += np.square(rewards[i] - avg_reward)
+        std_reward = np.sqrt(std_reward / len(rewards))  # 标准差
+        print("average_reward: %.2f,std_reward: %.2f" % (avg_reward, std_reward))
 
 
 if __name__ == '__main__':
@@ -210,3 +164,4 @@ if __name__ == '__main__':
     # test.test()
     test = TrainAndTest()
     test.test()
+
