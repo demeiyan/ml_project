@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on 17-12-27 下午5:10
-
 @author: dmyan
 """
 import torch
@@ -11,34 +10,33 @@ import torch.nn.functional as func
 import numpy as np
 import gym
 from gym import wrappers
-type = 'CartPole-v0'
+type = 'Acrobot-v1'
 
 import matplotlib.pyplot as plt
 
 # CartPole-v0
-# self.batch_size = 32
+# self.batch_size = 128
+# self.learning_rate = 0.001
+# self.epsilon = 0.1
+# self.epsilon_decay = 0.95
+# self.gamma = 0.99
+# self.episodes = 800
+
+# self.batch_size = 128
 # self.learning_rate = 0.0025
-# self.epsilon = 0.1
+# self.epsilon = 0.05
 # self.epsilon_min = 0.01
-# self.epsilon_decay = 0.995
-# self.gamma = 0.9
-
-
-# self.batch_size = 64
-# self.learning_rate = 0.0035
-# self.epsilon = 0.1
-# self.epsilon_min = 0.01
-# self.epsilon_decay = 0.995
-# self.gamma = 0.9
+# self.epsilon_decay = 0.95
+# self.gamma = 0.99
 
 class MyDQN:
     def __init__(self):
-        self.batch_size = 64
-        self.learning_rate = 0.0035
-        self.epsilon = 0.1
+        self.batch_size = 128
+        self.learning_rate = 0.0025
+        self.epsilon = 0.05
         self.epsilon_min = 0.01
-        self.epsilon_decay = 0.995
-        self.gamma = 0.9
+        self.epsilon_decay = 0.95
+        self.gamma = 0.99
         self.target_replace_iter = 100
         self.memory_capacity = 2000
         self.env = gym.make(type)
@@ -77,9 +75,8 @@ class DQN:
         self.loss_func = nn.MSELoss()
 
     def choose_action(self, obv, t):
-        #self.mydqn.epsilon = max(self.mydqn.epsilon_min, np.power(self.mydqn.epsilon_decay, t)*self.mydqn.epsilon)
         self.mydqn.epsilon = self.mydqn.epsilon*np.power(self.mydqn.epsilon_decay, t)
-        epsilon = max(0.025, self.mydqn.epsilon)
+        epsilon = max(0.01, self.mydqn.epsilon)
         if np.random.random() < epsilon:
             action = np.random.randint(0, self.mydqn.action_len)
         else:
@@ -118,8 +115,8 @@ class TrainAndTest:
     def __init__(self):
         self.dqn = DQN()
         self.mydqn = MyDQN()
-        self.episodes = 500
-        self.max_step = 20000
+        self.episodes = 800
+        self.max_step = 2000
 
     def train(self):
 
@@ -131,53 +128,57 @@ class TrainAndTest:
             s = self.mydqn.env.reset()
             reward = 0
             loss = []
-
             for t in range(self.max_step):
                 a = self.dqn.choose_action(s, i)
                 s_, r, done, info = self.mydqn.env.step(a)
+                # CartPole-v0 reward
+                # x, x_, theta, theta_ = s_
+                # r1 = (self.mydqn.env.x_threshold - abs(x)) / self.mydqn.env.x_threshold - 0.8
+                # r2 = (self.mydqn.env.theta_threshold_radians - abs(theta)) / self.mydqn.env.theta_threshold_radians - 0.5
+                # r = r1 + r2
+                # if x > 4 or x < -4:
+                #     r = r - 0.05
 
-                x, x_, theta, theta_ = s_
-                r1 = (self.mydqn.env.x_threshold - abs(x)) / self.mydqn.env.x_threshold - 0.8
-                r2 = (self.mydqn.env.theta_threshold_radians - abs(theta)) / self.mydqn.env.theta_threshold_radians - 0.5
-                r = r1 + r2
-                if x > 4 or x < -4:
-                    r = r - 0.05
-                # r = 0
-                # if type == 'CartPole-v0':
-                #     x, x_, theta, theta_ = s_
-                #     r1 = (self.mydqn.env.x_threshold - abs(x)) / self.mydqn.env.x_threshold - 0.8
-                #     r2 = (self.mydqn.env.theta_threshold_radians - abs(theta)) / self.mydqn.env.theta_threshold_radians - 0.5
-                #     r = r1 + r2
-                #     if x > 4 or x < -4:
-                #         r = r - 0.08
-                # elif type == 'MountainCar-v0':
+                # MountainCar-v0 reward
                 # position, velocity = s_
                 # r = np.abs(position-(-0.5))
-                # if position > 0 and velocity > 0:
-                #     r += 2
-                # elif position < 0 and velocity < 0:
-                #     r += 2
-                # else:
-                #     r = -2
 
+                # Acrobot-v1 reward
+                # x1, _, x2, _, _, _ = s_
+                # r = 1 - x1 + x2
+                # if done and t < 500 :
+                #     if t < 200:
+                #         r += 1000
+                #     if t < 100:
+                #         r += 10000
+                #     r += 500
 
-                reward += r
+                if type == 'CartPole-v0':  # CartPole-v0 reward
+                    self.max_step = 20000
+                    x, x_, theta, theta_ = s_
+                    r1 = (self.mydqn.env.x_threshold - abs(x)) / self.mydqn.env.x_threshold - 0.8
+                    r2 = (self.mydqn.env.theta_threshold_radians - abs(theta)) / self.mydqn.env.theta_threshold_radians - 0.5
+                    r = r1 + r2
+                    if x > 4 or x < -4:
+                        r = r - 0.05
+                elif type == 'MountainCar-v0 ':    # MountainCar-v0 reward
+                    position, velocity = s_
+                    r = np.abs(position-(-0.5))
+                elif type == 'Acrobot-v1':                 # Acrobot-v1 reward
+                    x1, _, x2, _, _, _ = s_
+                    r = 1 - x1 + x2
+                    if done and t <500 :
+                        if t < 200:
+                            r += 1000
+                        r += 500
                 self.dqn.store_transition(s, a, r, s_)
                 reward += r
                 if self.dqn.memory_count > self.mydqn.memory_capacity:
                     loss.append(self.dqn.learn())  # 记忆库满了就进行学习
-                #step += 1
-                if done:  # 如果回合结束, 进入下回合
-                    #print(t)
-                    # rewards.append(reward)
-                    # x_reward.append(len(x_reward))
-                    # if len(loss) >0 :
-                    #     losses.append(np.mean(loss))
-                    #     x_loss.append(len(x_loss))
-                    #print("Episode %d finished after %f time steps " % (i, step))
+                if done:
+                    print("Episode %d finished after %f time steps" % (i, t))
                     break
                 s = s_
-
             rewards.append(reward)
             x_reward.append(len(x_reward))
             if len(loss) == 0:
@@ -190,12 +191,12 @@ class TrainAndTest:
         plt.plot(x_loss, losses)
         plt.xlabel('Training episodes')
         plt.ylabel('Loss average')
-        plt.savefig('./MyDQN/1_1_loss.png')
+        plt.savefig('./loss.png')
         plt.figure()
         plt.plot(x_reward, rewards)
         plt.xlabel('Training episodes')
         plt.ylabel('The sum of reawrd')
-        plt.savefig('./MyDQN/1_1_reward.png')
+        plt.savefig('./reward.png')
 
     def test(self):
         print('----------------train---------------------')
@@ -209,8 +210,7 @@ class TrainAndTest:
             r = 0
             done = False
             step = 0
-            for t in range(20000):
-                #env.render()
+            for t in range(self.max_step):
                 action = self.dqn.q_net.forward(Variable(torch.FloatTensor(obv))).data.numpy()
                 action = np.argmax(action)
                 obv, reward, done, info = env.step(action)
@@ -222,8 +222,7 @@ class TrainAndTest:
             if not done:
                 print("Episode {} finished after {} time steps ".format(i, step))
             rewards.append(r)
-
-        avg_reward = np.mean(rewards)   #sum(rewards) / len(rewards)  # 均值
+        avg_reward = np.mean(rewards)
         std_reward = np.std(rewards)
         print("average_reward: {},std_reward: {}".format(avg_reward, std_reward))
 
@@ -232,4 +231,3 @@ if __name__ == '__main__':
     np.random.seed(0)
     test = TrainAndTest()
     test.test()
-

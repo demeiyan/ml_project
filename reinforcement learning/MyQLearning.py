@@ -1,14 +1,27 @@
 # -*- coding: utf-8 -*-
 """
 Created on 2017/12/21 21:18
-
 @author: dmyan
 """
 import gym
 import math
 import numpy as np
 import random
+import sys
 from gym import wrappers
+
+# cartpole-v0
+# self.epsilon = 0.2
+# self.alpha = 0.08
+# self.gamma = 0.9
+# self.episodes = 2000
+# self.epsilon_decay = 0.9
+
+# self.epsilon = 0.1
+# self.alpha = 0.08
+# self.gamma = 0.9
+# self.episodes = 2000
+# self.epsilon_decay = 0.9
 
 
 class QLearning:
@@ -22,7 +35,7 @@ class QLearning:
         if name == 'CartPole-v0':
             self.env = gym.make('CartPole-v0')
             self.env = self.env.unwrapped
-            self.state_len = (2, 2, 6, 3)
+            self.state_len = (1, 1, 6, 5)
             self.action_len = self.env.action_space.n
             self.state_scopes = list(zip(self.env.observation_space.low, self.env.observation_space.high))
             self.state_scopes[1] = [-0.5, 0.5]
@@ -34,20 +47,37 @@ class QLearning:
             self.state_len = (20, 20)
             self.action_len = self.env.action_space.n
             self.state_scopes = list(zip(self.env.observation_space.low, self.env.observation_space.high))
-            self.max_steps = 200
+            self.max_steps = 2000
         else:
             self.env = gym.make('Acrobot-v1')
             self.env = self.env.unwrapped
             self.state_len = (10, 10, 10, 10, 5, 5)
             self.action_len = self.env.action_space.n
             self.state_scopes = list(zip(self.env.observation_space.low, self.env.observation_space.high))
-            self.max_steps = 200
+            self.max_steps = 2000
         self.q_table = np.zeros(self.state_len + (self.action_len,))
 
+        # CartPole-V0 parameters
         self.epsilon = 0.1
-        self.alpha = 0.015
+        self.alpha = 0.1
         self.gamma = 0.95
         self.episodes = 2000
+        self.epsilon_decay = 25
+        # Acrobot-v1 parameters
+        # self.epsilon = 0.1
+        # self.alpha = 0.1
+        # self.gamma = 0.95
+        # self.episodes = 2000
+        # self.epsilon = 0.1
+        # self.alpha = 0.1
+        # self.gamma = 0.99
+        # self.episodes = 2000
+
+        # MountainCar-v0 parameters
+        # self.epsilon = 0.1
+        # self.alpha = 0.1
+        # self.gamma = 0.99
+        # self.episodes = 2000
 
         # self.epsilon = 0.025
         # self.alpha = 0.05
@@ -79,8 +109,7 @@ class QLearning:
         :param t:
         :return:
         """
-        epsilon = max(self.epsilon, min(1, 1.0 - math.log10((t + 1) / 30)))
-        #print(epsilon)
+        epsilon = max(0.01, min(1, 1.0 - math.log10((t + 1) / self.epsilon_decay)))
         if random.random() < epsilon:
             action =self.env.action_space.sample()
         else:
@@ -93,7 +122,7 @@ class QLearning:
         :param t:
         :return:
         """
-        return max(self.alpha, min(0.5, 1.0 - math.log10((t + 1) / 25)))
+        return max(0.1, min(0.5, 1.0 - math.log10((t + 1) / self.epsilon_decay)))
 
     def get_reward(self, obv, reward):
         """
@@ -110,17 +139,7 @@ class QLearning:
             if x > 4 or x < -4:
                 r = r - 0.05
             return r
-            #return reward
         elif self.type == 'MountainCar-v0':
-            # position, velocity = obv
-            # # print(position,velocity)
-            # #return abs(position - (-0.5))
-            # if position > 0 and velocity > 0:
-            #     return 10
-            # elif position < 0 and velocity < 0:
-            #     return 10
-            # else:
-            #     return -1
             return reward
         else:
             return reward
@@ -139,18 +158,32 @@ class QLearning:
                 action = self.choose_action(s, episode)
                 obv, reward, done, info = self.env.step(action)
                 s_ = self.discrete(obv)
-                x, x_, theta, theta_ = obv
-                r1 = (self.env.x_threshold - abs(x)) / self.env.x_threshold - 0.8
-                r2 = (self.env.theta_threshold_radians - abs(theta)) / self.env.theta_threshold_radians - 0.5
-                r = r1 + r2
-                if x > 4 or x < -4:
-                    r = r - 0.05
-                reward = r
-                #reward = self.get_reward(obv, reward)
+                if self.type == 'CartPole-v0':  # CartPole-v0 reward
+                    pass
+                    # x, x_, theta, theta_ = obv
+                    # r1 = (self.env.x_threshold - abs(x)) / self.env.x_threshold - 0.8
+                    # r2 = (self.env.theta_threshold_radians - abs(theta)) / self.env.theta_threshold_radians - 0.5
+                    # r = r1 + r2
+                    # if x > 4 or x < -4:
+                    #     r = r - 0.05
+                    # reward = r
+                elif self.type == 'MountainCar-v0 ':    # MountainCar-v0 reward
+                    position, velocity = s_
+                    reward = np.abs(position-(-0.5))
+                elif self.type == 'Acrobot-v1':                 # Acrobot-v1 reward
+                    x1, _, x2, _, _, _ = s_
+                    r = 1 - x1 + x2
+                    if done and t <500 :
+                        if t < 200:
+                            r += 1000
+                        r += 500
+                    reward = r
                 qmax = np.max(self.q_table[s_])
                 self.q_table[s + (action,)] += learning_rate * (reward + self.gamma * qmax - self.q_table[s + (action,)])
                 s = s_
                 if done:
+                    # print(t)
+                    # print('q_table', self.q_table)
                     print("Episode %d finished after %f time steps" % (episode, t))
                     break
                 learning_rate = self.get_learning_rate(episode)
@@ -167,28 +200,20 @@ class QLearning:
             obv = self.env.reset()
             s = self.discrete(obv)
             r = 0
-            step = 0
             done = False
+            step = 0
             for t in range(self.max_steps):
-            #while True:
-                #self.env.render()
-                #self.env.monitor()
                 action = np.argmax(self.q_table[s])
                 obv, reward, done, info = self.env.step(action)
                 s_ = self.discrete(obv)
                 s = s_
                 r += reward
-                step += 0
-                if done :
-                    print("Episode %d finished after %f time steps " % (episode, t))
-                    #print("finished after %f time steps " % (t))
+                step += 1
+                if done:
                     break
-
-            if not done:
-                print("Episode %d finished after %f time steps " % (episode, step))
+            print("Episode %d finished after %f time steps " % (episode, step))
             rewards.append(r)
-
-        avg_reward = np.mean(rewards)   #sum(rewards) / len(rewards)  # 均值
+        avg_reward = np.mean(rewards)
         std_reward = np.std(rewards)
         print("average_reward: {},std_reward: {}".format(avg_reward, std_reward))
 

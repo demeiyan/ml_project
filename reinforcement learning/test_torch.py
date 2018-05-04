@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on 17-12-27 下午5:10
-
 @author: dmyan
 """
 import torch
@@ -76,9 +75,8 @@ class DQN:
         self.loss_func = nn.MSELoss()
 
     def choose_action(self, obv, t):
-        #self.mydqn.epsilon = max(self.mydqn.epsilon_min, np.power(self.mydqn.epsilon_decay, t)*self.mydqn.epsilon)
         self.mydqn.epsilon = self.mydqn.epsilon*np.power(self.mydqn.epsilon_decay, t)
-        epsilon = max(0.0005, self.mydqn.epsilon)
+        epsilon = max(0.01, self.mydqn.epsilon)
         if np.random.random() < epsilon:
             action = np.random.randint(0, self.mydqn.action_len)
         else:
@@ -117,7 +115,7 @@ class TrainAndTest:
     def __init__(self):
         self.dqn = DQN()
         self.mydqn = MyDQN()
-        self.episodes = 400
+        self.episodes = 800
         self.max_step = 1000
 
     def state(self, s_):
@@ -145,14 +143,15 @@ class TrainAndTest:
                 a = self.dqn.choose_action(s, i)
                 s_, r, done, info = self.mydqn.env.step(a)
 
-                x1, _, x2, _, _, _ = s_
-                r = 1 - x1 + x2
-                if done and t <500 :
-                    if t < 200:
-                        r += 1000
-                    if t < 100 :
-                        r += 10000
-                    r += 500
+                # Acrobot-v1 reward
+                # x1, _, x2, _, _, _ = s_
+                # r = 1 - x1 + x2
+                # if done and t < 500 :
+                #     if t < 200:
+                #         r += 1000
+                #     if t < 100 :
+                #         r += 10000
+                #     r += 500
 
                 # r = -np.cos(s_[0]) - np.cos(s_[0] + s_[1])
                 # s_ = self.state(s_)
@@ -162,7 +161,7 @@ class TrainAndTest:
                     loss.append(self.dqn.learn())  # 记忆库满了就进行学习
                 #step += 1
                 if done:  # 如果回合结束, 进入下回合
-                    #print(t)
+                    print(t)
 
                     # rewards.append(reward)
                     # x_reward.append(len(x_reward))
@@ -185,12 +184,12 @@ class TrainAndTest:
         plt.plot(x_loss, losses)
         plt.xlabel('Training episodes')
         plt.ylabel('Loss average')
-        plt.savefig('./MyDQN/3/1_1_loss.png')
+        plt.savefig('./MyDQN/3/loss.png')
         plt.figure()
         plt.plot(x_reward, rewards)
         plt.xlabel('Training episodes')
         plt.ylabel('The sum of reawrd')
-        plt.savefig('./MyDQN/3/1_1_reward.png')
+        plt.savefig('./MyDQN/3/reward.png')
 
     def test(self):
         print('----------------train---------------------')
@@ -205,7 +204,7 @@ class TrainAndTest:
             done = False
             step = 0
             #obv = self.state(obv)
-            for t in range(1000):
+            for t in range(self.max_step):
                 #env.render()
                 action = self.dqn.q_net.forward(Variable(torch.FloatTensor(obv))).data.numpy()
                 action = np.argmax(action)
@@ -229,4 +228,3 @@ if __name__ == '__main__':
     np.random.seed(0)
     test = TrainAndTest()
     test.test()
-
