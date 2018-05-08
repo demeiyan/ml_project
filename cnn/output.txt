@@ -1,0 +1,379 @@
+[1,   195] loss: 2.050
+[2,   195] loss: 1.768
+[3,   195] loss: 1.549
+[4,   195] loss: 1.420
+[5,   195] loss: 1.343
+[6,   195] loss: 1.257
+[7,   195] loss: 1.191
+[8,   195] loss: 1.133
+[9,   195] loss: 1.075
+[10,   195] loss: 1.029
+[11,   195] loss: 0.980
+[12,   195] loss: 0.948
+[13,   195] loss: 0.905
+[14,   195] loss: 0.881
+[15,   195] loss: 0.854
+[16,   195] loss: 0.819
+[17,   195] loss: 0.798
+[18,   195] loss: 0.779
+[19,   195] loss: 0.752
+[20,   195] loss: 0.731
+[21,   195] loss: 0.722
+[22,   195] loss: 0.698
+[23,   195] loss: 0.687
+[24,   195] loss: 0.665
+[25,   195] loss: 0.650
+[26,   195] loss: 0.638
+[27,   195] loss: 0.621
+[28,   195] loss: 0.607
+[29,   195] loss: 0.598
+[30,   195] loss: 0.586
+[31,   195] loss: 0.571
+[32,   195] loss: 0.556
+[33,   195] loss: 0.549
+[34,   195] loss: 0.542
+[35,   195] loss: 0.535
+[36,   195] loss: 0.520
+[37,   195] loss: 0.507
+[38,   195] loss: 0.503
+[39,   195] loss: 0.502
+[40,   195] loss: 0.484
+[41,   195] loss: 0.475
+[42,   195] loss: 0.465
+[43,   195] loss: 0.458
+[44,   195] loss: 0.459
+[45,   195] loss: 0.455
+[46,   195] loss: 0.440
+[47,   195] loss: 0.438
+[48,   195] loss: 0.421
+[49,   195] loss: 0.430
+[50,   195] loss: 0.415
+Accuracy of plane : 84 %
+Accuracy of   car : 90 %
+Accuracy of  bird : 78 %
+Accuracy of   cat : 62 %
+Accuracy of  deer : 64 %
+Accuracy of   dog : 66 %
+Accuracy of  frog : 80 %
+Accuracy of horse : 70 %
+Accuracy of  ship : 89 %
+Accuracy of truck : 81 %
+Total Accuracy is : 76.650%
+[51,   195] loss: 0.413
+[52,   195] loss: 0.400
+[53,   195] loss: 0.398
+[54,   195] loss: 0.391
+[55,   195] loss: 0.380
+[56,   195] loss: 0.384
+[57,   195] loss: 0.373
+[58,   195] loss: 0.363
+[59,   195] loss: 0.364
+[60,   195] loss: 0.358
+[61,   195] loss: 0.359
+[62,   195] loss: 0.350
+[63,   195] loss: 0.348
+[64,   195] loss: 0.332
+[65,   195] loss: 0.338
+[66,   195] loss: 0.333
+[67,   195] loss: 0.326
+[68,   195] loss: 0.325
+[69,   195] loss: 0.319
+[70,   195] loss: 0.314
+[71,   195] loss: 0.310
+[72,   195] loss: 0.308
+[73,   195] loss: 0.301
+[74,   195] loss: 0.306
+[75,   195] loss: 0.301
+[76,   195] loss: 0.290
+[77,   195] loss: 0.293
+[78,   195] loss: 0.291
+[79,   195] loss: 0.285
+[80,   195] loss: 0.285
+[81,   195] loss: 0.282
+[82,   195] loss: 0.273
+[83,   195] loss: 0.270
+[84,   195] loss: 0.271
+[85,   195] loss: 0.270
+[86,   195] loss: 0.268
+[87,   195] loss: 0.270
+[88,   195] loss: 0.255
+[89,   195] loss: 0.257
+[90,   195] loss: 0.262
+[91,   195] loss: 0.258
+[92,   195] loss: 0.254
+[93,   195] loss: 0.248
+[94,   195] loss: 0.252
+[95,   195] loss: 0.244
+[96,   195] loss: 0.237
+[97,   195] loss: 0.242
+[98,   195] loss: 0.235
+[99,   195] loss: 0.230
+[100,   195] loss: 0.238
+Accuracy of plane : 84 %
+Accuracy of   car : 89 %
+Accuracy of  bird : 75 %
+Accuracy of   cat : 60 %
+Accuracy of  deer : 68 %
+Accuracy of   dog : 73 %
+Accuracy of  frog : 83 %
+Accuracy of horse : 80 %
+Accuracy of  ship : 92 %
+Accuracy of truck : 83 %
+Total Accuracy is : 79.220%
+[101,   195] loss: 0.227
+[102,   195] loss: 0.234
+[103,   195] loss: 0.228
+[104,   195] loss: 0.220
+[105,   195] loss: 0.226
+[106,   195] loss: 0.220
+[107,   195] loss: 0.226
+[108,   195] loss: 0.219
+[109,   195] loss: 0.220
+[110,   195] loss: 0.216
+[111,   195] loss: 0.217
+[112,   195] loss: 0.217
+[113,   195] loss: 0.213
+[114,   195] loss: 0.216
+[115,   195] loss: 0.212
+[116,   195] loss: 0.213
+[117,   195] loss: 0.206
+[118,   195] loss: 0.211
+[119,   195] loss: 0.207
+[120,   195] loss: 0.211
+[121,   195] loss: 0.201
+[122,   195] loss: 0.210
+[123,   195] loss: 0.203
+[124,   195] loss: 0.201
+[125,   195] loss: 0.200
+[126,   195] loss: 0.204
+[127,   195] loss: 0.192
+[128,   195] loss: 0.199
+[129,   195] loss: 0.200
+[130,   195] loss: 0.194
+[131,   195] loss: 0.190
+[132,   195] loss: 0.192
+[133,   195] loss: 0.192
+[134,   195] loss: 0.197
+[135,   195] loss: 0.189
+[136,   195] loss: 0.193
+[137,   195] loss: 0.187
+[138,   195] loss: 0.194
+[139,   195] loss: 0.189
+[140,   195] loss: 0.193
+[141,   195] loss: 0.190
+[142,   195] loss: 0.179
+[143,   195] loss: 0.185
+[144,   195] loss: 0.183
+[145,   195] loss: 0.182
+[146,   195] loss: 0.182
+[147,   195] loss: 0.182
+[148,   195] loss: 0.177
+[149,   195] loss: 0.180
+[150,   195] loss: 0.180
+Accuracy of plane : 80 %
+Accuracy of   car : 91 %
+Accuracy of  bird : 71 %
+Accuracy of   cat : 49 %
+Accuracy of  deer : 71 %
+Accuracy of   dog : 76 %
+Accuracy of  frog : 83 %
+Accuracy of horse : 88 %
+Accuracy of  ship : 89 %
+Accuracy of truck : 85 %
+Total Accuracy is : 78.710%
+[151,   195] loss: 0.174
+[152,   195] loss: 0.181
+[153,   195] loss: 0.172
+[154,   195] loss: 0.181
+[155,   195] loss: 0.177
+[156,   195] loss: 0.176
+[157,   195] loss: 0.165
+[158,   195] loss: 0.172
+[159,   195] loss: 0.176
+[160,   195] loss: 0.176
+[161,   195] loss: 0.171
+[162,   195] loss: 0.169
+[163,   195] loss: 0.172
+[164,   195] loss: 0.168
+[165,   195] loss: 0.162
+[166,   195] loss: 0.168
+[167,   195] loss: 0.167
+[168,   195] loss: 0.168
+[169,   195] loss: 0.165
+[170,   195] loss: 0.162
+[171,   195] loss: 0.163
+[172,   195] loss: 0.164
+[173,   195] loss: 0.160
+[174,   195] loss: 0.161
+[175,   195] loss: 0.161
+[176,   195] loss: 0.164
+[177,   195] loss: 0.156
+[178,   195] loss: 0.162
+[179,   195] loss: 0.161
+[180,   195] loss: 0.157
+[181,   195] loss: 0.156
+[182,   195] loss: 0.156
+[183,   195] loss: 0.161
+[184,   195] loss: 0.158
+[185,   195] loss: 0.153
+[186,   195] loss: 0.156
+[187,   195] loss: 0.160
+[188,   195] loss: 0.157
+[189,   195] loss: 0.158
+[190,   195] loss: 0.161
+[191,   195] loss: 0.153
+[192,   195] loss: 0.151
+[193,   195] loss: 0.156
+[194,   195] loss: 0.155
+[195,   195] loss: 0.158
+[196,   195] loss: 0.152
+[197,   195] loss: 0.156
+[198,   195] loss: 0.152
+[199,   195] loss: 0.157
+[200,   195] loss: 0.155
+Accuracy of plane : 71 %
+Accuracy of   car : 87 %
+Accuracy of  bird : 71 %
+Accuracy of   cat : 58 %
+Accuracy of  deer : 78 %
+Accuracy of   dog : 80 %
+Accuracy of  frog : 82 %
+Accuracy of horse : 81 %
+Accuracy of  ship : 88 %
+Accuracy of truck : 90 %
+Total Accuracy is : 78.950%
+[201,   195] loss: 0.092
+[202,   195] loss: 0.078
+[203,   195] loss: 0.070
+[204,   195] loss: 0.067
+[205,   195] loss: 0.067
+[206,   195] loss: 0.062
+[207,   195] loss: 0.061
+[208,   195] loss: 0.060
+[209,   195] loss: 0.059
+[210,   195] loss: 0.058
+[211,   195] loss: 0.056
+[212,   195] loss: 0.057
+[213,   195] loss: 0.055
+[214,   195] loss: 0.053
+[215,   195] loss: 0.054
+[216,   195] loss: 0.054
+[217,   195] loss: 0.054
+[218,   195] loss: 0.050
+[219,   195] loss: 0.050
+[220,   195] loss: 0.050
+[221,   195] loss: 0.051
+[222,   195] loss: 0.050
+[223,   195] loss: 0.049
+[224,   195] loss: 0.050
+[225,   195] loss: 0.051
+[226,   195] loss: 0.050
+[227,   195] loss: 0.048
+[228,   195] loss: 0.050
+[229,   195] loss: 0.046
+[230,   195] loss: 0.045
+[231,   195] loss: 0.045
+[232,   195] loss: 0.045
+[233,   195] loss: 0.046
+[234,   195] loss: 0.046
+[235,   195] loss: 0.047
+[236,   195] loss: 0.047
+[237,   195] loss: 0.046
+[238,   195] loss: 0.045
+[239,   195] loss: 0.044
+[240,   195] loss: 0.044
+[241,   195] loss: 0.043
+[242,   195] loss: 0.043
+[243,   195] loss: 0.045
+[244,   195] loss: 0.046
+[245,   195] loss: 0.041
+[246,   195] loss: 0.042
+[247,   195] loss: 0.041
+[248,   195] loss: 0.042
+[249,   195] loss: 0.042
+[250,   195] loss: 0.040
+Accuracy of plane : 83 %
+Accuracy of   car : 90 %
+Accuracy of  bird : 74 %
+Accuracy of   cat : 66 %
+Accuracy of  deer : 77 %
+Accuracy of   dog : 72 %
+Accuracy of  frog : 83 %
+Accuracy of horse : 85 %
+Accuracy of  ship : 89 %
+Accuracy of truck : 88 %
+Total Accuracy is : 81.240%
+[251,   195] loss: 0.037
+[252,   195] loss: 0.036
+[253,   195] loss: 0.034
+[254,   195] loss: 0.034
+[255,   195] loss: 0.036
+[256,   195] loss: 0.035
+[257,   195] loss: 0.033
+[258,   195] loss: 0.034
+[259,   195] loss: 0.033
+[260,   195] loss: 0.034
+[261,   195] loss: 0.033
+[262,   195] loss: 0.033
+[263,   195] loss: 0.034
+[264,   195] loss: 0.032
+[265,   195] loss: 0.033
+[266,   195] loss: 0.033
+[267,   195] loss: 0.030
+[268,   195] loss: 0.034
+[269,   195] loss: 0.032
+[270,   195] loss: 0.031
+[271,   195] loss: 0.031
+[272,   195] loss: 0.032
+[273,   195] loss: 0.033
+[274,   195] loss: 0.034
+[275,   195] loss: 0.032
+[276,   195] loss: 0.031
+[277,   195] loss: 0.032
+[278,   195] loss: 0.032
+[279,   195] loss: 0.033
+[280,   195] loss: 0.032
+[281,   195] loss: 0.032
+[282,   195] loss: 0.032
+[283,   195] loss: 0.032
+[284,   195] loss: 0.031
+[285,   195] loss: 0.032
+[286,   195] loss: 0.034
+[287,   195] loss: 0.030
+[288,   195] loss: 0.031
+[289,   195] loss: 0.031
+[290,   195] loss: 0.033
+[291,   195] loss: 0.032
+[292,   195] loss: 0.031
+[293,   195] loss: 0.031
+[294,   195] loss: 0.033
+[295,   195] loss: 0.031
+[296,   195] loss: 0.029
+[297,   195] loss: 0.032
+[298,   195] loss: 0.031
+[299,   195] loss: 0.031
+[300,   195] loss: 0.032
+Accuracy of plane : 85 %
+Accuracy of   car : 89 %
+Accuracy of  bird : 74 %
+Accuracy of   cat : 66 %
+Accuracy of  deer : 79 %
+Accuracy of   dog : 73 %
+Accuracy of  frog : 86 %
+Accuracy of horse : 84 %
+Accuracy of  ship : 90 %
+Accuracy of truck : 87 %
+Total Accuracy is : 81.760%
+Finished Training
+Accuracy of plane : 84 %
+Accuracy of   car : 89 %
+Accuracy of  bird : 75 %
+Accuracy of   cat : 65 %
+Accuracy of  deer : 78 %
+Accuracy of   dog : 73 %
+Accuracy of  frog : 87 %
+Accuracy of horse : 83 %
+Accuracy of  ship : 88 %
+Accuracy of truck : 87 %
+Total Accuracy is : 81.500%
+max_epoch : 299 max_acc : 0.818 learning_rate : 0.00001 decay : 0.00010

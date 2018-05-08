@@ -12,7 +12,7 @@ import torch.optim as optim
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
-
+import matplotlib.pyplot as plt
 
 def dataLoader():
     transform = transforms.Compose(
@@ -66,8 +66,22 @@ if __name__ == '__main__':
     # learning_rate weight_decay
     # 0.0001    0.0005
     # 0.0003    0.00008
+    # 0.0004    0.00007 75.5%
+    # 0.0005    0.001   79%
+    # 0.00005   0.00025 69.450%	1400 epoch 
+    # 0.00008	0.00015 72.61%	300 epoch
+    # 0.0005	0.00055
+    # 0.0005	0.00055 75.81%	300 epoch
+    # 0.001     0.00015 82.9%   300 epoch
+    # 0.001     0.0001  81.8%   3000 epoch
+    batch_count = 0
+    x_count = []
+    y_loss = []
+    max_acc = -1
+    max_epoch = -1
     batch_size = 256
-    learning_rate = 0.0003
+    learning_rate = 0.001
+    decay = 0.00015	
     net = Net()
     if torch.cuda.is_available():
         net = net.cuda()
@@ -78,12 +92,12 @@ if __name__ == '__main__':
     criterion = nn.CrossEntropyLoss()
     s = [200, 250, 300]
     trainloader, testloader = dataLoader()
-    optimizer = optim.Adam(net.parameters(), lr=learning_rate, weight_decay=0.00008)
-    for epoch in range(350):  # loop over the dataset multiple times
+    optimizer = optim.Adam(net.parameters(), lr=learning_rate, weight_decay=decay)
+    for epoch in range(300):  # loop over the dataset multiple times
 
         if epoch == s[0] or epoch == s[1] or epoch == s[2]:
             learning_rate = learning_rate*0.1
-            optimizer = optim.Adam(net.parameters(), lr=learning_rate, weight_decay=0.00008)
+            optimizer = optim.Adam(net.parameters(), lr=learning_rate, weight_decay=decay)
         running_loss = 0.0
         for i, data in enumerate(trainloader, 0):
             # get the inputs
@@ -96,19 +110,20 @@ if __name__ == '__main__':
 
             # forward + backward + optimize
             outputs = net.forward(inputs)
-            # print(outputs.shape, labels)
-            # break
             loss = criterion(outputs[:, :, 0, 0], labels)
             loss.backward()
             optimizer.step()
 
             # print statistics
+            #x_count.append(batch_count)
+            #y_loss.append(loss.item())
+            #batch_count += 1
             running_loss += loss.item()
-            if i % 75 == 74:  # print every 2000 mini-batches
+            if i % 195 == 194:  # print every 195 mini-batches
                 print('[%d, %5d] loss: %.3f' %
-                      (epoch + 1, i + 1, running_loss / 75))
+                      (epoch + 1, i + 1, running_loss / 195))
                 running_loss = 0.0
-        if epoch % 10 == 9:
+        if epoch % 50 == 49:    # test every 50 epoch
             class_correct = list(0. for i in range(10))
             class_total = list(0. for i in range(10))
             with torch.no_grad():
@@ -127,10 +142,20 @@ if __name__ == '__main__':
             for i in range(10):
                 print('Accuracy of %5s : %2d %%' % (
                     classes[i], 100 * class_correct[i] / class_total[i]))
-            print('Total Accuracy is : %3f%%', sum(class_correct)*100 / sum(class_total))
+            acc = sum(class_correct)/sum(class_total)
+            print('Total Accuracy is : %.3f%%' % (acc*100))
+            if acc > max_acc:
+                max_acc = acc
+                max_epoch = epoch
     print('Finished Training')
+    # plt.figure()
+    # plt.plot(x_count, y_loss)
+    # plt.xlabel('batch_count')
+    # plt.ylabel('loss')
+    # plt.savefig('./loss.png')
     class_correct = list(0. for i in range(10))
     class_total = list(0. for i in range(10))
+    # test
     with torch.no_grad():
         for data in testloader:
             images, labels = data
@@ -147,6 +172,6 @@ if __name__ == '__main__':
     for i in range(10):
         print('Accuracy of %5s : %2d %%' % (
             classes[i], 100 * class_correct[i] / class_total[i]))
-    print('Total Accuracy is : %3f%%', sum(class_correct)*100 / sum(class_total))
-
+    print('Total Accuracy is : %.3f%%' % (sum(class_correct) * 100 / sum(class_total)))
+    print("max_epoch : %d max_acc : %.3f learning_rate : %.5f decay : %.5f" % ( max_epoch, max_acc, learning_rate, decay))
 
