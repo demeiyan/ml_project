@@ -1,13 +1,13 @@
 # PCA
 
-![PCA](0.PNG)
-![PCA](1.PNG)
-![PCA](2.PNG)
-![PCA](3.PNG)
-![PCA](4.PNG)
-![PCA](5.PNG)
-![PCA](6.PNG)
-![PCAs](7.PNG)
+![PCA](0.png)
+![PCA](1.png)
+![PCA](2.png)
+![PCA](3.png)
+![PCA](4.png)
+![PCA](5.png)
+![PCA](6.png)
+![PCA](7.png)
 
 
 
