@@ -93,7 +93,7 @@ if __name__ == '__main__':
     s = [200, 250, 300]
     trainloader, testloader = dataLoader()
     optimizer = optim.Adam(net.parameters(), lr=learning_rate, weight_decay=decay)
-    for epoch in range(300):  # loop over the dataset multiple times
+    for epoch in range(500):  # loop over the dataset multiple times
 
         if epoch == s[0] or epoch == s[1] or epoch == s[2]:
             learning_rate = learning_rate*0.1

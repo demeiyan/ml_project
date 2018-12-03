@@ -1,6 +1,6 @@
 # CNN
 
-* 一个cnn网络结构
+* 一个cnn网络结构[Striving for Simplicity: The All Convolutional Net][2]
 ![CNN][1]
 
 * All_CNN实现的参数batch_size=256,learning_rate=0.001,weight_decay=0.00015,epoch=300，准确率为82.9%
@@ -35,3 +35,4 @@
 	11. Total Accuracy is : 82.160%
 
 [1]: cnn.png
+[2]: https://arxiv.org/pdf/1412.6806.pdf
